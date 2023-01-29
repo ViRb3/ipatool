@@ -10,12 +10,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slices"
-	"golang.org/x/term"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func newCookieJar() (*cookiejar.Jar, error) {
@@ -33,17 +30,6 @@ func newCookieJar() (*cookiejar.Jar, error) {
 }
 
 func keyringBackendType() keyring.BackendType {
-	allowedBackends := []keyring.BackendType{
-		keyring.KeychainBackend,
-		keyring.SecretServiceBackend,
-	}
-
-	for _, backend := range allowedBackends {
-		if slices.Contains(keyring.AvailableBackends(), backend) {
-			return backend
-		}
-	}
-
 	return keyring.FileBackend
 }
 
@@ -59,26 +45,7 @@ func newKeyring(logger log.Logger, passphrase string, interactive bool) (keyring
 		ServiceName: KeychainServiceName,
 		FileDir:     filepath.Join(machine.HomeDirectory(), ConfigDirectoryName),
 		FilePasswordFunc: func(s string) (string, error) {
-			if passphrase == "" && !interactive {
-				return "", errors.New("keychain passphrase is required when not running in interactive mode; use the \"--keychain-passphrase\" flag")
-			}
-
-			if passphrase != "" {
-				return passphrase, nil
-			}
-
-			path := strings.Split(s, " unlock ")[1]
-			logger.Log().Msgf("enter passphrase to unlock %s (this is separate from your Apple ID password): ", path)
-			bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
-			if err != nil {
-				return "", errors.Wrap(err, "failed to read password")
-			}
-
-			password := string(bytes)
-			password = strings.Trim(password, "\n")
-			password = strings.Trim(password, "\r")
-
-			return password, nil
+			return "", nil
 		},
 	})
 	if err != nil {
