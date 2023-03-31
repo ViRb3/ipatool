@@ -1,19 +1,25 @@
-name: Release
+name: Test
 
 on:
   push:
-    tags:
-      - "*"
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main, develop]
 
 jobs:
-  binaries:
+  build:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout
+      - name: Checkout with token
+        if: github.event_name != 'pull_request'
         uses: actions/checkout@v3.5.0
         with:
           token: ${{ secrets.API_GITHUB_TOKEN }}
+
+      - name: Checkout without token
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v3.5.0
 
       - name: Fetch Go version
         run: |
@@ -25,10 +31,13 @@ jobs:
         with:
           go-version: "${{ env.go_version }}"
 
-      - name: Binaries Release
-        uses: goreleaser/goreleaser-action@v4.2.0
+      # - name: Program Test
+      #   run: go test ./...
+
+      - name: Version
+        if: github.event_name != 'pull_request'
+        uses: cycjimmy/semantic-release-action@v3.4.2
         with:
-          version: ~> 1.16.2
-          args: release --rm-dist
+          semantic_version: 19.0
         env:
           GITHUB_TOKEN: ${{ secrets.API_GITHUB_TOKEN }}
