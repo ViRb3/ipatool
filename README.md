@@ -1,138 +1,48 @@
 # IPATool
 
-[![Release](https://img.shields.io/github/release/majd/ipatool.svg?label=Release)](https://GitHub.com/majd/ipatool/releases/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/majd/ipatool/blob/main/LICENSE)
-
 `ipatool` is a command line tool that allows you to search for iOS apps on the [App Store](https://apps.apple.com) and download a copy of the app package, known as an _ipa_ file.
 
 ![Demo](./demo.gif)
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-  - [Manual](#manual)
-  - [Package Manager (macOS)](#package-manager-macos)
-- [Usage](#usage)
-- [Compiling](#compiling)
-- [License](#license)
-- [Changelog](https://github.com/majd/ipatool/blob/main/CHANGELOG.md)
-- [FAQ](https://github.com/majd/ipatool/wiki/FAQ)
-
-## Requirements
-- Supported operating system (Windows, Linux or macOS).
-- Apple ID set up to use the App Store.
-
-## Installation
-
-### Manual
-
-You can grab the latest version of `ipatool` from [GitHub releases](https://github.com/majd/ipatool/releases).
-
-### Package Manager (macOS)
-
-You can install `ipatool` using [Homebrew](https://brew.sh).
-
-```shell
-$ brew tap majd/repo
-$ brew install ipatool
-```
+This is a fork of the upstream project, adding a bunch of new features that improve usability and aid automation. For specifics, please check the commits or the usage below.
 
 ## Usage
 
-To authenticate with the App Store, use the `auth` command.
+### General
 
-```
-Authenticate with the App Store
+```bash
+A cli tool for interacting with Apple's ipa files
 
 Usage:
-  ipatool auth [command]
+  ipatool [command]
 
 Available Commands:
-  info        Show current account info
-  login       Login to the App Store
-  revoke      Revoke your App Store credentials
+  auth        Authenticate with the App Store
+  completion  Generate the autocompletion script for the specified shell
+  download    Download (encrypted) iOS app packages from the App Store
+  help        Help about any command
+  lookup      Lookup information about a specific iOS app on the App Store
+  purchase    Obtain a license for the app from the App Store
+  search      Search for iOS apps available on the App Store
 
 Flags:
-  -h, --help   help for auth
-
-Global Flags:
       --format format     sets output format for command; can be 'text', 'json' (default text)
+  -h, --help              help for ipatool
       --non-interactive   run in non-interactive session
       --verbose           enables verbose logs
+  -v, --version           version for ipatool
 
-Use "ipatool auth [command] --help" for more information about a command.
+Use "ipatool [command] --help" for more information about a command.
 ```
 
-To search for apps on the App Store, use the `search` command.
+### App format
 
-```
-Search for iOS apps available on the App Store
+You can select apps by either app id (integer) or bundle id (string). For unlisted (removed) apps, if you have ever downloaded them before, you will be able to download them again only through the app id.
 
-Usage:
-  ipatool search <term> [flags]
-
+```bash
 Flags:
-  -h, --help        help for search
-  -l, --limit int   maximum amount of search results to retrieve (default 5)
-
-Global Flags:
-      --format format     sets output format for command; can be 'text', 'json' (default text)
-      --non-interactive   run in non-interactive session
-      --verbose           enables verbose logs
-```
-
-To obtain a license for an app, use the `purchase` command.
-
-```
-Obtain a license for the app from the App Store
-
-Usage:
-  ipatool purchase [flags]
-
-Flags:
-  -b, --bundle-identifier string   Bundle identifier of the target iOS app (required)
-  -h, --help                       help for purchase
-
-Global Flags:
-      --format format     sets output format for command; can be 'text', 'json' (default text)
-      --non-interactive   run in non-interactive session
-      --verbose           enables verbose logs
-```
-
-To download a copy of the ipa file, use the `download` command.
-
-```
-Download (encrypted) iOS app packages from the App Store
-
-Usage:
-  ipatool download [flags]
-
-Flags:
-  -b, --bundle-identifier string   The bundle identifier of the target iOS app (required)
-  -h, --help                       help for download
-  -o, --output string              The destination path of the downloaded app package
-      --purchase                   Obtain a license for the app if needed
-
-Global Flags:
-      --format format     sets output format for command; can be 'text', 'json' (default text)
-      --non-interactive   run in non-interactive session
-      --verbose           enables verbose logs
-```
-
-**Note:** the tool runs in interactive mode by default. Use the `--non-interactive` flag
-if running in an automated environment.
-
-## Compiling
-
-The tool can be compiled using the Go toolchain.
-
-```shell
-$ go build -o ipatool
-```
-
-Unit tests can be executed with the following command.
-
-```shell
-$ go test -v github.com/majd/ipatool/...
+  -i, --app-id int                   App ID of the target iOS app
+  -b, --bundle-identifier string     The bundle identifier of the target iOS app
 ```
 
 ## License

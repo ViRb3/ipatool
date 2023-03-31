@@ -1,8 +1,7 @@
 {
   "branches": [
     {
-      "name": "master",
-      "prerelease": true
+      "name": "master"
     },
     {
       "name": "main"
