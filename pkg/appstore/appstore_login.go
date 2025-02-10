@@ -44,13 +44,8 @@ func (a *appstore) Login(email, password, authCode string) error {
 		}
 	}
 
-	macAddr, err := a.machine.MacAddress()
-	if err != nil {
-		return errors.Wrap(err, ErrGetMAC.Error())
-	}
-
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
-	a.logger.Verbose().Str("mac", macAddr).Str("guid", guid).Send()
+	guid := util.MakeGuid(email)
+	a.logger.Verbose().Str("guid", guid).Send()
 
 	acc, err := a.login(email, password, authCode, guid, 0, false)
 	if err != nil {

@@ -2,9 +2,11 @@ package appstore
 
 import (
 	"fmt"
-	"github.com/majd/ipatool/pkg/http"
-	"github.com/pkg/errors"
 	"strings"
+
+	"github.com/majd/ipatool/pkg/http"
+	"github.com/majd/ipatool/pkg/util"
+	"github.com/pkg/errors"
 )
 
 type PurchaseResult struct {
@@ -15,18 +17,13 @@ type PurchaseResult struct {
 }
 
 func (a *appstore) Purchase(bundleOrAppID any) error {
-	macAddr, err := a.machine.MacAddress()
-	if err != nil {
-		return errors.Wrap(err, ErrGetMAC.Error())
-	}
-
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
-	a.logger.Verbose().Str("mac", macAddr).Str("guid", guid).Send()
-
 	acc, err := a.account()
 	if err != nil {
 		return errors.Wrap(err, ErrGetAccount.Error())
 	}
+
+	guid := util.MakeGuid(acc.Email)
+	a.logger.Verbose().Str("guid", guid).Send()
 
 	var appID int64
 	if val, ok := bundleOrAppID.(int64); ok {

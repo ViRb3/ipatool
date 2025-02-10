@@ -66,13 +66,8 @@ func (a *appstore) Download(bundleOrAppID any, outputPath string, acquireLicense
 		appID = app.ID
 	}
 
-	macAddr, err := a.machine.MacAddress()
-	if err != nil {
-		return errors.Wrap(err, ErrGetMAC.Error())
-	}
-
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
-	a.logger.Verbose().Str("mac", macAddr).Str("guid", guid).Send()
+	guid := util.MakeGuid(acc.Email)
+	a.logger.Verbose().Str("guid", guid).Send()
 
 	item, err := a.downloadItem(acc, appID, outputPath, guid, acquireLicense, true, false)
 	if err != nil {
