@@ -72,6 +72,7 @@ func (c *client[R]) Send(req Request) (Result[R], error) {
 	if err != nil {
 		return Result[R]{}, errors.Wrap(err, ErrRequest.Error())
 	}
+	defer res.Body.Close()
 
 	err = c.cookieJar.Save()
 	if err != nil {
