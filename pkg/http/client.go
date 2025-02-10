@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+const (
+	appStoreAuthURL = "https://buy.itunes.apple.com/WebObjects/MZFinance.woa/wa/authenticate"
+)
+
 //go:generate mockgen -source=client.go -destination=client_mock.go -package=http
 type Client[R interface{}] interface {
 	Send(request Request) (Result[R], error)
@@ -40,8 +44,14 @@ func (adt *AddHeaderTransport) RoundTrip(req *http.Request) (*http.Response, err
 func NewClient[R interface{}](args ClientArgs) Client[R] {
 	return &client[R]{
 		internalClient: http.Client{
-			Timeout:   0,
-			Jar:       args.CookieJar,
+			Timeout: 0,
+			Jar:     args.CookieJar,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				if req.Referer() == appStoreAuthURL {
+					return http.ErrUseLastResponse
+				}
+				return nil
+			},
 			Transport: &AddHeaderTransport{http.DefaultTransport},
 		},
 		cookieJar: args.CookieJar,
