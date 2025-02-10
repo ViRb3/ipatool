@@ -16,7 +16,7 @@ const (
 	PriavteAppStoreAPIDomainPrefixWithAuthCode    = "p71"
 	PrivateAppStoreAPIDomain                      = "buy." + iTunesAPIDomain
 	PrivateAppStoreAPIPathAuthenticate            = "/WebObjects/MZFinance.woa/wa/authenticate"
-	PrivateAppStoreAPIPathPurchase                = "/WebObjects/MZBuy.woa/wa/buyProduct"
+	PrivateAppStoreAPIPathPurchase                = "/WebObjects/MZFinance.woa/wa/buyProduct"
 	PrivateAppStoreAPIPathDownload                = "/WebObjects/MZFinance.woa/wa/volumeStoreDownloadProduct"
 
 	HTTPHeaderStoreFront = "X-Set-Apple-Store-Front"
