@@ -5,6 +5,9 @@
 
 `ipatool` is a command line tool that allows you to search for iOS apps on the [App Store](https://apps.apple.com) and download a copy of the app package, known as an _ipa_ file.
 
+> [!NOTE]
+> This is a fork of the upstream project, adding some tweaks and new features that improve usability and aid automation. For specifics, please check the commits.
+
 ![Demo](./resources/demo.gif)
 
 - [Requirements](#requirements)
