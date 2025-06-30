@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/99designs/keyring"
 	cookiejar "github.com/juju/persistent-cookiejar"
@@ -19,7 +17,6 @@ import (
 	"github.com/majd/ipatool/v2/pkg/util/operatingsystem"
 	"github.com/rs/zerolog"
 	"github.com/spf13/cobra"
-	"golang.org/x/term"
 )
 
 var dependencies = Dependencies{}
@@ -63,33 +60,12 @@ func newCookieJar(machine machine.Machine) http.CookieJar {
 func newKeychain(machine machine.Machine, logger log.Logger, interactive bool) keychain.Keychain {
 	ring := util.Must(keyring.Open(keyring.Config{
 		AllowedBackends: []keyring.BackendType{
-			keyring.KeychainBackend,
-			keyring.SecretServiceBackend,
 			keyring.FileBackend,
 		},
 		ServiceName: KeychainServiceName,
 		FileDir:     filepath.Join(machine.HomeDirectory(), ConfigDirectoryName),
 		FilePasswordFunc: func(s string) (string, error) {
-			if keychainPassphrase == "" && !interactive {
-				return "", errors.New("keychain passphrase is required when not running in interactive mode; use the \"--keychain-passphrase\" flag")
-			}
-
-			if keychainPassphrase != "" {
-				return keychainPassphrase, nil
-			}
-
-			path := strings.Split(s, " unlock ")[1]
-			logger.Log().Msgf("enter passphrase to unlock %s (this is separate from your Apple ID password): ", path)
-			bytes, err := term.ReadPassword(int(os.Stdin.Fd()))
-			if err != nil {
-				return "", fmt.Errorf("failed to read password: %w", err)
-			}
-
-			password := string(bytes)
-			password = strings.Trim(password, "\n")
-			password = strings.Trim(password, "\r")
-
-			return password, nil
+			return "", nil
 		},
 	}))
 
