@@ -129,7 +129,7 @@ func (t *appstore) downloadFile(src, dst string, progress *progressbar.ProgressB
 	}
 	defer res.Body.Close()
 
-	file, err := t.os.OpenFile(dst, os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := t.os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
@@ -222,7 +222,7 @@ func (t *appstore) applyPatches(item downloadItemResult, acc Account, src, dst s
 	}
 	defer srcZip.Close()
 
-	dstFile, err := t.os.OpenFile(dst, os.O_CREATE|os.O_WRONLY, 0644)
+	dstFile, err := t.os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
