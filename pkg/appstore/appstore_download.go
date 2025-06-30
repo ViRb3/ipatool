@@ -24,6 +24,7 @@ type DownloadInput struct {
 	Progress          *progressbar.ProgressBar
 	ExternalVersionID string
 	Platform          Platform
+	DryRun            bool
 }
 
 type DownloadOutput struct {
@@ -92,26 +93,28 @@ func (t *appstore) Download(input DownloadInput) (DownloadOutput, error) {
 		return DownloadOutput{}, fmt.Errorf("failed to resolve destination path: %w", err)
 	}
 
-	tmpPath := fmt.Sprintf("%s.tmp", destination)
+	if !input.DryRun {
+		tmpPath := fmt.Sprintf("%s.tmp", destination)
 
-	err = t.downloadFile(item.URL, tmpPath, input.Progress)
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to download file: %w", err)
-	}
+		err = t.downloadFile(item.URL, tmpPath, input.Progress)
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to download file: %w", err)
+		}
 
-	err = t.applyPatches(item, input.Account, tmpPath, destination)
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to apply patches: %w", err)
-	}
+		err = t.applyPatches(item, input.Account, tmpPath, destination)
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to apply patches: %w", err)
+		}
 
-	err = t.validatePackagePlatform(destination, input.Platform)
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to validate package platform: %w", err)
-	}
+		err = t.validatePackagePlatform(destination, input.Platform)
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to validate package platform: %w", err)
+		}
 
-	err = t.os.Remove(fmt.Sprintf("%s.tmp", destination))
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to remove file: %w", err)
+		err = t.os.Remove(fmt.Sprintf("%s.tmp", destination))
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to remove file: %w", err)
+		}
 	}
 
 	return DownloadOutput{
