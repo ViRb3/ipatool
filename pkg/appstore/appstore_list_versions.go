@@ -3,9 +3,9 @@ package appstore
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/majd/ipatool/v2/pkg/http"
+	"github.com/majd/ipatool/v2/pkg/util"
 )
 
 type ListVersionsInput struct {
@@ -19,12 +19,12 @@ type ListVersionsOutput struct {
 }
 
 func (t *appstore) ListVersions(input ListVersionsInput) (ListVersionsOutput, error) {
-	macAddr, err := t.machine.MacAddress()
+	_, err := t.machine.MacAddress()
 	if err != nil {
 		return ListVersionsOutput{}, fmt.Errorf("failed to get mac address: %w", err)
 	}
 
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
+	guid := util.MakeGuid(input.Account.Email)
 
 	req := t.listVersionsRequest(input.Account, input.App, guid)
 	res, err := t.downloadClient.Send(req)
