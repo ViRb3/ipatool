@@ -67,6 +67,7 @@ func (t *appstore) Download(input DownloadInput) (DownloadOutput, error) {
 	}
 
 	item := res.Data.Items[0]
+	input.App.LoadMetadata(item.Metadata)
 
 	version := "unknown"
 
@@ -175,26 +176,8 @@ func (*appstore) downloadRequest(acc Account, app App, guid string, externalVers
 	}
 }
 
-func fileName(app App, version string) string {
-	var parts []string
-
-	if app.BundleID != "" {
-		parts = append(parts, app.BundleID)
-	}
-
-	if app.ID != 0 {
-		parts = append(parts, strconv.FormatInt(app.ID, 10))
-	}
-
-	if version != "" {
-		parts = append(parts, version)
-	}
-
-	return fmt.Sprintf("%s.ipa", strings.Join(parts, "_"))
-}
-
 func (t *appstore) resolveDestinationPath(app App, version string, path string) (string, error) {
-	file := fileName(app, version)
+	file := app.GetIPAName()
 
 	if path == "" {
 		workdir, err := t.os.Getwd()
