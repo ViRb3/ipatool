@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/majd/ipatool/v2/pkg/http"
+	"github.com/majd/ipatool/v2/pkg/util"
 	"github.com/schollz/progressbar/v3"
 	"howett.net/plist"
 )
@@ -32,12 +32,12 @@ type DownloadOutput struct {
 }
 
 func (t *appstore) Download(input DownloadInput) (DownloadOutput, error) {
-	macAddr, err := t.machine.MacAddress()
+	_, err := t.machine.MacAddress()
 	if err != nil {
 		return DownloadOutput{}, fmt.Errorf("failed to get mac address: %w", err)
 	}
 
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
+	guid := util.MakeGuid(input.Account.Email)
 
 	req := t.downloadRequest(input.Account, input.App, guid, input.ExternalVersionID)
 

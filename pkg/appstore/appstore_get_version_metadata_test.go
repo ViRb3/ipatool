@@ -68,7 +68,7 @@ var _ = Describe("AppStore (GetVersionMetadata)", func() {
 	When("request uses a custom pod", func() {
 		const (
 			testPod  = "42"
-			testGUID = "001122334455"
+			testGUID = "E3B0C44298FC"
 		)
 
 		BeforeEach(func() {
