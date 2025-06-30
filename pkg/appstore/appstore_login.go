@@ -27,12 +27,12 @@ type LoginOutput struct {
 }
 
 func (t *appstore) Login(input LoginInput) (LoginOutput, error) {
-	macAddr, err := t.machine.MacAddress()
+	_, err := t.machine.MacAddress()
 	if err != nil {
 		return LoginOutput{}, fmt.Errorf("failed to get mac address: %w", err)
 	}
 
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
+	guid := util.MakeGuid(input.Email)
 
 	acc, err := t.login(input.Email, input.Password, input.AuthCode, guid)
 	if err != nil {

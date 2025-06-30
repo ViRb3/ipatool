@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	gohttp "net/http"
-	"strings"
 
 	"github.com/majd/ipatool/v2/pkg/http"
+	"github.com/majd/ipatool/v2/pkg/util"
 )
 
 var (
@@ -21,12 +21,12 @@ type PurchaseInput struct {
 }
 
 func (t *appstore) Purchase(input PurchaseInput) error {
-	macAddr, err := t.machine.MacAddress()
+	_, err := t.machine.MacAddress()
 	if err != nil {
 		return fmt.Errorf("failed to get mac address: %w", err)
 	}
 
-	guid := strings.ReplaceAll(strings.ToUpper(macAddr), ":", "")
+	guid := util.MakeGuid(input.Account.Email)
 
 	if input.App.Price > 0 {
 		return errors.New("purchasing paid apps is not supported")
