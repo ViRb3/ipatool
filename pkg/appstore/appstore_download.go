@@ -23,6 +23,7 @@ type DownloadInput struct {
 	OutputPath        string
 	Progress          *progressbar.ProgressBar
 	ExternalVersionID string
+	DryRun            bool
 }
 
 type DownloadOutput struct {
@@ -80,19 +81,21 @@ func (t *appstore) Download(input DownloadInput) (DownloadOutput, error) {
 		return DownloadOutput{}, fmt.Errorf("failed to resolve destination path: %w", err)
 	}
 
-	err = t.downloadFile(item.URL, fmt.Sprintf("%s.tmp", destination), input.Progress)
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to download file: %w", err)
-	}
+	if !input.DryRun {
+		err = t.downloadFile(item.URL, fmt.Sprintf("%s.tmp", destination), input.Progress)
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to download file: %w", err)
+		}
 
-	err = t.applyPatches(item, input.Account, fmt.Sprintf("%s.tmp", destination), destination)
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to apply patches: %w", err)
-	}
+		err = t.applyPatches(item, input.Account, fmt.Sprintf("%s.tmp", destination), destination)
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to apply patches: %w", err)
+		}
 
-	err = t.os.Remove(fmt.Sprintf("%s.tmp", destination))
-	if err != nil {
-		return DownloadOutput{}, fmt.Errorf("failed to remove file: %w", err)
+		err = t.os.Remove(fmt.Sprintf("%s.tmp", destination))
+		if err != nil {
+			return DownloadOutput{}, fmt.Errorf("failed to remove file: %w", err)
+		}
 	}
 
 	return DownloadOutput{

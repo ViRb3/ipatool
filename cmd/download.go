@@ -19,6 +19,7 @@ func downloadCmd() *cobra.Command {
 		appID             int64
 		bundleID          string
 		externalVersionID string
+		dryRun            bool
 	)
 
 	cmd := &cobra.Command{
@@ -73,7 +74,7 @@ func downloadCmd() *cobra.Command {
 
 				interactive, _ := cmd.Context().Value("interactive").(bool)
 				var progress *progressbar.ProgressBar
-				if interactive {
+				if interactive && !dryRun {
 					progress = progressbar.NewOptions64(1,
 						progressbar.OptionSetDescription("downloading"),
 						progressbar.OptionSetWriter(os.Stdout),
@@ -91,14 +92,16 @@ func downloadCmd() *cobra.Command {
 				}
 
 				out, err := dependencies.AppStore.Download(appstore.DownloadInput{
-					Account: acc, App: app, OutputPath: outputPath, Progress: progress, ExternalVersionID: externalVersionID})
+					Account: acc, App: app, OutputPath: outputPath, Progress: progress, ExternalVersionID: externalVersionID, DryRun: dryRun})
 				if err != nil {
 					return err
 				}
 
-				err = dependencies.AppStore.ReplicateSinf(appstore.ReplicateSinfInput{Sinfs: out.Sinfs, PackagePath: out.DestinationPath})
-				if err != nil {
-					return err
+				if !dryRun {
+					err = dependencies.AppStore.ReplicateSinf(appstore.ReplicateSinfInput{Sinfs: out.Sinfs, PackagePath: out.DestinationPath})
+					if err != nil {
+						return err
+					}
 				}
 
 				dependencies.Logger.Log().
@@ -135,6 +138,7 @@ func downloadCmd() *cobra.Command {
 	cmd.Flags().StringVarP(&outputPath, "output", "o", "", "The destination path of the downloaded app package")
 	cmd.Flags().StringVar(&externalVersionID, "external-version-id", "", "External version identifier of the target iOS app (defaults to latest version when not specified)")
 	cmd.Flags().BoolVar(&acquireLicense, "purchase", false, "Obtain a license for the app if needed")
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Simulate the operation without actually downloading anything")
 
 	return cmd
 }
