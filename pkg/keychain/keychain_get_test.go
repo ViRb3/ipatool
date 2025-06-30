@@ -1,41 +1,28 @@
 package keychain
 
 import (
-	"errors"
+	"os"
+	"path/filepath"
 
-	"github.com/byteness/keyring"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"go.uber.org/mock/gomock"
 )
 
 var _ = Describe("Keychain (Get)", func() {
 	var (
-		ctrl        *gomock.Controller
-		keychain    Keychain
-		mockKeyring *MockKeyring
+		keychain Keychain
+		dir      string
 	)
 
 	BeforeEach(func() {
-		ctrl = gomock.NewController(GinkgoT())
-		mockKeyring = NewMockKeyring(ctrl)
+		dir = GinkgoT().TempDir()
 		keychain = New(Args{
-			Keyring: mockKeyring,
+			Directory: dir,
 		})
 	})
 
-	AfterEach(func() {
-		ctrl.Finish()
-	})
-
-	When("keyring returns error", func() {
+	When("item does not exist", func() {
 		const testKey = "test-key"
-
-		BeforeEach(func() {
-			mockKeyring.EXPECT().
-				Get(testKey).
-				Return(keyring.Item{}, errors.New(""))
-		})
 
 		It("returns wrapped error", func() {
 			data, err := keychain.Get(testKey)
@@ -44,22 +31,34 @@ var _ = Describe("Keychain (Get)", func() {
 		})
 	})
 
-	When("keyring returns item", func() {
+	When("item exists", func() {
 		const testKey = "test-key"
 		var testData = []byte("test")
 
 		BeforeEach(func() {
-			mockKeyring.EXPECT().
-				Get(testKey).
-				Return(keyring.Item{
-					Data: testData,
-				}, nil)
+			err := keychain.Set(testKey, testData)
+			Expect(err).ToNot(HaveOccurred())
 		})
 
 		It("returns data", func() {
 			data, err := keychain.Get(testKey)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(data).To(Equal(testData))
+		})
+	})
+
+	When("item is invalid", func() {
+		const testKey = "test-key"
+
+		BeforeEach(func() {
+			err := os.WriteFile(filepath.Join(dir, testKey), []byte("invalid"), 0600)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("returns wrapped error", func() {
+			data, err := keychain.Get(testKey)
+			Expect(err).To(HaveOccurred())
+			Expect(data).To(BeNil())
 		})
 	})
 })

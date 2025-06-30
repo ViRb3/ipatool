@@ -8,15 +8,19 @@ type Keychain interface {
 }
 
 type keychain struct {
-	keyring Keyring
+	directory    string
+	passwordFunc func(string) (string, error)
+	password     string
 }
 
 type Args struct {
-	Keyring Keyring
+	Directory    string
+	PasswordFunc func(string) (string, error)
 }
 
 func New(args Args) Keychain {
 	return &keychain{
-		keyring: args.Keyring,
+		directory:    args.Directory,
+		passwordFunc: args.PasswordFunc,
 	}
 }
